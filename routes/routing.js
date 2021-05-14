@@ -51,7 +51,7 @@ const trackingFun = async () => {
               from: "pricetracking28@gmail.com",
               to: i.email,
               subject: "Price Dropped!!!",
-              html: `<h2>Congratulations,</h2><h3>Price has been reduced to ₹${price}</h3><h3>Item Name- ${i.name}</h3><h3>Price(when added)- ₹${j.whenAddedPrice}</h3><h3>Expected Price- ₹${j.expectedPrice}</h3><p>Please click on the button below to check out the product</p><br><a href=${j.url} style="margin-top:10px;color:white;background-color:rgb(33, 37, 41);padding:10px 20px;border-radius:50px;text-decoration:none ">CLICK ME</a><br><br><p>If this doesn't work please visit <a href="https://pricetracking28.herokuapp.com/viewtrackings">My Trackings</a></p><br><br><h3>Thank you for joining with us</h3> `,
+              html: `<h2>Congratulations,</h2><h3>Price has been reduced to ₹${price}</h3><h3>Item Name- ${j.name}</h3><h3>Price(when added)- ₹${j.whenAddedPrice}</h3><h3>Expected Price- ₹${j.expectedPrice}</h3><p>Please click on the button below to check out the product</p><br><a href=${j.url} style="margin-top:10px;color:white;background-color:rgb(33, 37, 41);padding:10px 20px;border-radius:50px;text-decoration:none ">CLICK ME</a><br><br><h3>Thank you for joining with us</h3> `,
             };
             transport.sendMail(message,(error, info) => {
               if (error) {
