@@ -96,8 +96,22 @@ userModel.addtoTracking = async (prod) => {
     }
   }
 };
+const sorting=async(count)=>{
+  const sorted = count.trackingItem.sort(
+    (a, b) => new Date(b.time) - new Date(a.time)
+  );
+  // for(let i of sorted)
+  // {
+  //   const $ = await fetchHTML(i.url)
+  //   let price=$("._30jeq3").html();
+  //   price=price.replace(/,/g,'').slice(price.indexOf(';')+1,).replace(/,/g,'').slice(1,);
+  //   i.currentPrice=price;
+  // }
+  return sorted;
+}
 userModel.getfromOrder = async (userid) => {
   let model = await dbModel.getOrderConnection();
+  console.log(userid);
   let count = await model.findOne({ userid: userid }, { trackingItem: 1, _id: 0 });
   if (!count) {
     let obj = {};
@@ -107,24 +121,12 @@ userModel.getfromOrder = async (userid) => {
     return [];
   } else {
     if (count.trackingItem.length > 0) {
-      const sorted = count.trackingItem.sort(
-        (a, b) => new Date(b.time) - new Date(a.time)
-      );
-      console.log(sorted)
-      for(let i of sorted)
-      {
-        const $ = await fetchHTML(i.url)
-        let price=$("._30jeq3").html();
-        price=price.replace(/,/g,'').slice(price.indexOf(';')+1,).replace(/,/g,'').slice(1,);
-        i.currentPrice=price;
-      }
-      return sorted;
+      return sorting(count);
     } else return [];
   }
 };
 
 userModel.editTracking=async(prod)=>{
-  console.log(prod);
   let model = await dbModel.getOrderConnection();
   let updateQuan = await model.updateOne(
     { userid: prod.userid, "trackingItem._id": prod._id },
@@ -151,8 +153,7 @@ userModel.deleteTracking=async(obj)=>{
       { userid: obj.userid },
       { trackingItem: 1, _id: 0 }
     );
-    console.log(getCartDetail.trackingItem);
-    return getCartDetail.trackingItem;
+    return sorting(getCartDetail);
   } else {
     let err = new Error();
     err.status = 501;
