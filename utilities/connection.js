@@ -15,7 +15,8 @@ const orderprodSchema = mongoose.Schema({
   name: { type: String, required: [true, "Name is required"] },
   whenAddedPrice: { type: Number, required: [true, "Price is required"] },
   expectedPrice: { type: Number, required: [true, "Expected Price is required"] },
-  lowestPrice: { type: Number},
+  lowestPrice: { type: Number}, image: { type: String },
+  image: { type: String },
   currentPrice: { type: Number},
   time:{type:Date,default:Date.now},
   mailPrice:{type:Number}
