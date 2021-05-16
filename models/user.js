@@ -9,11 +9,27 @@ async function fetchHTML(url) {
   return cheerio.load(data);
 }
 
+userModel.getTrackingDetail=async()=>{
+  let model=await dbModel.getOrderConnection();
+  let track=await  model.find();
+  if(track)
+  return track;
+  else
+  return [];
+}
+
 userModel.getPrice=async(url)=>{
   const $ = await fetchHTML(url)
     let price=$("._30jeq3").html();
     let fname=$('.G6XhRU').html();
     let lname=$('.B_NuCI').html();
+    let imge=$('._2amPTt ').attr('src');
+    console.log(imge);
+    if(!imge)
+    {
+      imge=$('._396QI4').html();
+      console.log(imge);
+    }
     let name='';
     if(fname)
     name=fname.slice(0,fname.indexOf('&nbsp')) + '-' 
@@ -28,6 +44,7 @@ userModel.getPrice=async(url)=>{
     let obj={};
     obj.name=name;
     obj.price=price;
+    obj.image=imge;
     return obj;
     // price=price.html().replace(/,/g,'').slice(redu.indexOf(';')+1,);
     // price=price.replace(/,/g,'').slice(1,);

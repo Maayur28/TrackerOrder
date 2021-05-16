@@ -3,6 +3,10 @@ const model = require("../models/user");
 
 let userService = {};
 
+userService.getTrackingDetail=async()=>{
+  return await model.getTrackingDetail();
+}
+
 userService.getPrice=async(url)=>{
   return await model.getPrice(url);
 }

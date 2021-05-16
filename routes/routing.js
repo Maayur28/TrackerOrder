@@ -11,7 +11,7 @@ let trackingData;
 
 setInterval(() => {
     trackingFun();
-}, 30000);
+}, 60000);
 
 async function fetchHTML(url) {
   const { data } = await axios.get(url);
@@ -19,6 +19,8 @@ async function fetchHTML(url) {
 }
 
 const trackingFun = async () => {
+  if(!trackingData)
+  trackingData=await service.getTrackingDetail();
   if (trackingData) {
     for (let i of trackingData) {
       for (const j of i.trackingItem) {
