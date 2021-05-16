@@ -23,7 +23,7 @@ userModel.getPrice=async(url)=>{
     let price=$("._30jeq3").html();
     let fname=$('.G6XhRU').html();
     let lname=$('.B_NuCI').html();
-    let imge=$('._2amPTt ').attr('src');
+    let imge=$('._2amPTt').attr('src');
     console.log(imge);
     if(!imge)
     {
