@@ -1,0 +1,11 @@
+---
+application:
+  name: "trackerorder"
+  project: "pricetrackerorder"
+  organization: "QoveryCommunity"
+routers:
+- name: "main-trackerorder"
+  routes:
+  - application_name: "trackerorder"
+    paths:
+    - "/*"
