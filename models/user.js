@@ -13,15 +13,14 @@ async function fetchHTML(url) {
     const { data } = await axios.get(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36",
+          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36",
       },
     });
     return cheerio.load(data);
   } catch (error) {
     let err = new Error();
     err.status = 500;
-    err.message =
-      "Sorry! Server is busy,Please try again later";
+    err.message = "Sorry! Server is busy,Please try again later";
     throw err;
   }
 }

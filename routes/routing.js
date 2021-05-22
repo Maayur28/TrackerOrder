@@ -18,7 +18,7 @@ async function fetchHTML(url) {
     const { data } = await axios.get(url, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36",
+          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36",
       },
     });
     return cheerio.load(data);
@@ -34,75 +34,80 @@ const trackingFun = async () => {
     for (let i of trackingData) {
       for (const j of i.trackingItem) {
         const $ = await fetchHTML(j.url);
-        if($)
-        {
-        let price;
-        if (j.url.includes("amazon")) {
-          price = $("#priceblock_ourprice").html();
-          if (price == null) price = $("#priceblock_dealprice").html();
-          if (price == null) price = $("#priceblock_saleprice").html();
-          if (price) {
-            price = price
-              .replace(/,/g, "")
-              .slice(price.indexOf(";") + 1,-3);
+        if ($) {
+          let price;
+          if (j.url.includes("amazon")) {
+            price = $("#priceblock_ourprice").html();
+            if (price == null) price = $("#priceblock_dealprice").html();
+            if (price == null) price = $("#priceblock_saleprice").html();
+            if (price) {
+              price = price.replace(/,/g, "").slice(price.indexOf(";") + 1, -3);
+            }
+          } else {
+            price = $("._30jeq3").html();
+            if (price) {
+              price = price
+                .replace(/,/g, "")
+                .slice(price.indexOf(";") + 1)
+                .replace(/,/g, "")
+                .slice(1);
+            }
           }
-        } else {
-          price = $("._30jeq3").html();
-          if (price) {
-            price = price
-              .replace(/,/g, "")
-              .slice(price.indexOf(";") + 1)
-              .replace(/,/g, "")
-              .slice(1);
-          }
-        }
-        console.log(price);
-        if (Number(price)) {
-          let model = await dbModel.getOrderConnection();
-          await model.updateOne(
-            { userid: i.userid, "trackingItem._id": j._id },
-            { $set: { "trackingItem.$.currentPrice": Number(price) } }
-          );
-          if (Number(price) < j.lowestPrice) {
-            j.lowestPrice = Number(price);
+          console.log(price);
+          if (Number(price)) {
             let model = await dbModel.getOrderConnection();
             await model.updateOne(
               { userid: i.userid, "trackingItem._id": j._id },
-              { $set: { "trackingItem.$.lowestPrice": j.lowestPrice } }
+              { $set: { "trackingItem.$.currentPrice": Number(price) } }
             );
-          }
-          if (
-            Number(price) <= j.expectedPrice &&
-            j.expectedPrice != j.mailPrice
-          ) {
-            var transport = nodemailer.createTransport({
-              service: "gmail",
-              auth: {
-                user: process.env.email,
-                pass: process.env.password,
-              },
-            });
-            const message = {
-              from: "pricetracking28@gmail.com",
-              to: i.email,
-              subject: "Price Dropped!!!",
-              html: `<h2>Congratulations,</h2><h3>Price has been reduced to ₹${Number(price)}</h3><h3>Item Name- ${i.name}</h3><h3>Price(when added)- ₹${j.whenAddedPrice}</h3><h3>Expected Price- ₹${j.expectedPrice}</h3><p>Please click on the button below to check out the product</p><br><a href=${j.url} style="margin-top:10px;color:white;background-color:rgb(33, 37, 41);padding:10px 20px;border-radius:50px;text-decoration:none ">CLICK ME</a><br><br><p>If this doesn't work please visit <a href="http://localhost:3333/viewtrackings">My Trackings</a></p><br><br><h3>Thank you for joining with us</h3> `,
-            };
-            transport.sendMail(message, (error, info) => {
-              if (error) {
-                console.log(error);
-              } else {
-                console.log("Success");
-                j.mailPrice = j.expectedPrice;
-                model.updateOne(
-                  { userid: i.userid, "trackingItem._id": j._id },
-                  { $set: { "trackingItem.$.mailPrice": j.mailPrice } }
-                );
-              }
-            });
+            if (Number(price) < j.lowestPrice) {
+              j.lowestPrice = Number(price);
+              let model = await dbModel.getOrderConnection();
+              await model.updateOne(
+                { userid: i.userid, "trackingItem._id": j._id },
+                { $set: { "trackingItem.$.lowestPrice": j.lowestPrice } }
+              );
+            }
+            if (
+              Number(price) <= j.expectedPrice &&
+              j.expectedPrice != j.mailPrice
+            ) {
+              var transport = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                  user: process.env.email,
+                  pass: process.env.password,
+                },
+              });
+              const message = {
+                from: "pricetracking28@gmail.com",
+                to: i.email,
+                subject: "Price Dropped!!!",
+                html: `<h2>Congratulations,</h2><h3>Price has been reduced to ₹${Number(
+                  price
+                )}</h3><h3>Item Name- ${i.name}</h3><h3>Price(when added)- ₹${
+                  j.whenAddedPrice
+                }</h3><h3>Expected Price- ₹${
+                  j.expectedPrice
+                }</h3><p>Please click on the button below to check out the product</p><br><a href=${
+                  j.url
+                } style="margin-top:10px;color:white;background-color:rgb(33, 37, 41);padding:10px 20px;border-radius:50px;text-decoration:none ">CLICK ME</a><br><br><p>If this doesn't work please visit <a href="http://localhost:3333/viewtrackings">My Trackings</a></p><br><br><h3>Thank you for joining with us</h3> `,
+              };
+              transport.sendMail(message, (error, info) => {
+                if (error) {
+                  console.log(error);
+                } else {
+                  console.log("Success");
+                  j.mailPrice = j.expectedPrice;
+                  model.updateOne(
+                    { userid: i.userid, "trackingItem._id": j._id },
+                    { $set: { "trackingItem.$.mailPrice": j.mailPrice } }
+                  );
+                }
+              });
+            }
           }
         }
-      }
       }
     }
   }
@@ -119,9 +124,12 @@ routes.post("/getprice", async (req, res, next) => {
 routes.post("/addtracker", auth, async (req, res, next) => {
   req.body.userid = req.user.userid;
   try {
-    const rest = await axios.post("https://pricetrackeruser.herokuapp.com/getemail", {
-      userid: req.body.userid,
-    });
+    const rest = await axios.post(
+      "https://pricetrackeruser.herokuapp.com/getemail",
+      {
+        userid: req.body.userid,
+      }
+    );
     req.body.email = rest.data.username;
     let totalTracking = await service.addtoTracking(req.body);
     if (totalTracking) {
