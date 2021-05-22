@@ -4,51 +4,57 @@ const cheerio = require("cheerio");
 
 let userModel = {};
 
+userModel.getTrackingDetail = async () => {
+  let model = await dbModel.getOrderConnection();
+  return await model.find();
+};
 async function fetchHTML(url) {
-  const { data } = await axios.get(url)
+  const { data } = await axios.get(url, {
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36",
+    },
+  });
   return cheerio.load(data);
 }
 
-userModel.getTrackingDetail=async()=>{
-  let model=await dbModel.getOrderConnection();
-  let track=await  model.find();
-  if(track)
-  return track;
-  else
-  return [];
-}
-
-userModel.getPrice=async(url)=>{
-  const $ = await fetchHTML(url)
-    let price=$("._30jeq3").html();
-    let fname=$('.G6XhRU').html();
-    let lname=$('.B_NuCI').html();
-    let imge=$('._2amPTt').attr('src');
-    console.log(imge);
-    if(!imge)
-    {
-      imge=$('._396QI4').html();
-      console.log(imge);
+userModel.getPrice = async (url) => {
+  const $ = await fetchHTML(url);
+  let obj = {};
+  if (url.includes("amazon")) {
+    let price = $("#priceblock_ourprice").html();
+    if (price == null) 
+    price = $("#priceblock_dealprice").html();
+    if(price==null)
+    price=$("#priceblock_saleprice").html();
+    let name=$('#productTitle').html().trim();
+    let imge=$('.a-stretch-vertical').attr('src');
+    obj.name = name;
+    obj.price = price;
+    obj.image = imge;
+  } else {
+    let price = $("._30jeq3").html();
+    let fname = $(".G6XhRU").html();
+    let lname = $(".B_NuCI").html();
+    let imge = $("._2amPTt ").attr("src");
+    if (!imge) {
+      imge = $("._396QI4").html();
     }
-    let name='';
-    if(fname)
-    name=fname.slice(0,fname.indexOf('&nbsp')) + '-' 
-    if(lname)
-    {
-      let inde=lname.indexOf('<!-- -->');
-      if(inde!=-1)
-      name=name + lname.slice(0,lname.indexOf('<!-- -->'));
-      else
-      name=name+lname.slice(0,);
+    let name = "";
+    if (fname) name = fname.slice(0, fname.indexOf("&nbsp")) + "-";
+    if (lname) {
+      let inde = lname.indexOf("<!-- -->");
+      if (inde != -1) name = name + lname.slice(0, lname.indexOf("<!-- -->"));
+      else name = name + lname.slice(0);
     }
-    let obj={};
-    obj.name=name;
-    obj.price=price;
-    obj.image=imge;
-    return obj;
-    // price=price.html().replace(/,/g,'').slice(redu.indexOf(';')+1,);
-    // price=price.replace(/,/g,'').slice(1,);
-}
+    obj.name = name;
+    obj.price = price;
+    obj.image = imge;
+  }
+  return obj;
+  // price=price.html().replace(/,/g,'').slice(redu.indexOf(';')+1,);
+  // price=price.replace(/,/g,'').slice(1,);
+};
 
 userModel.addtoTracking = async (prod) => {
   let model = await dbModel.getOrderConnection();
@@ -56,13 +62,14 @@ userModel.addtoTracking = async (prod) => {
   if (!getorder) {
     let obj = {};
     obj.userid = prod.userid;
-    obj.email=prod.email;
+    obj.email = prod.email;
     delete prod.userid;
     delete prod.email;
     obj.trackingItem = [];
     let addorder = await model.create(obj);
     if (addorder) {
       {
+        prod._id = 1;
         let addprod = await model.updateOne(
           { userid: obj.userid },
           { $push: { trackingItem: prod } }
@@ -87,16 +94,13 @@ userModel.addtoTracking = async (prod) => {
     let id = prod.userid;
     delete prod.userid;
     delete prod.email;
-    let _id=0;
-    for(let i of getorder.trackingItem)
-    {
-      if(i)
-      {
-        if(i._id>_id)
-        _id=i._id
+    let _id = 0;
+    for (let i of getorder.trackingItem) {
+      if (i) {
+        if (i._id > _id) _id = i._id;
       }
     }
-    prod._id=_id+1;
+    prod._id = _id + 1;
     let pushitem = await model.updateOne(
       { userid: id },
 
@@ -113,7 +117,7 @@ userModel.addtoTracking = async (prod) => {
     }
   }
 };
-const sorting=async(count)=>{
+const sorting = async (count) => {
   const sorted = count.trackingItem.sort(
     (a, b) => new Date(b.time) - new Date(a.time)
   );
@@ -125,11 +129,13 @@ const sorting=async(count)=>{
   //   i.currentPrice=price;
   // }
   return sorted;
-}
+};
 userModel.getfromOrder = async (userid) => {
   let model = await dbModel.getOrderConnection();
-  console.log(userid);
-  let count = await model.findOne({ userid: userid }, { trackingItem: 1, _id: 0 });
+  let count = await model.findOne(
+    { userid: userid },
+    { trackingItem: 1, _id: 0 }
+  );
   if (!count) {
     let obj = {};
     obj.userid = userid;
@@ -143,7 +149,7 @@ userModel.getfromOrder = async (userid) => {
   }
 };
 
-userModel.editTracking=async(prod)=>{
+userModel.editTracking = async (prod) => {
   let model = await dbModel.getOrderConnection();
   let updateQuan = await model.updateOne(
     { userid: prod.userid, "trackingItem._id": prod._id },
@@ -157,9 +163,9 @@ userModel.editTracking=async(prod)=>{
   } else {
     return true;
   }
-}
+};
 
-userModel.deleteTracking=async(obj)=>{
+userModel.deleteTracking = async (obj) => {
   let model = await dbModel.getOrderConnection();
   let getTrack = await model.updateOne(
     { userid: obj.userid },
@@ -177,5 +183,5 @@ userModel.deleteTracking=async(obj)=>{
     err.message = "Sorry!Server is busy.Please try to remove later";
     throw err;
   }
-}
+};
 module.exports = userModel;
