@@ -14,39 +14,28 @@ setInterval(() => {
 }, 60000);
 
 async function fetchHTML(url) {
-  const { data } = await axios.get(url, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36",
-    },
-  });
-  return cheerio.load(data);
+  try {
+    const { data } = await axios.get(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36",
+      },
+    });
+    return cheerio.load(data);
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
 const trackingFun = async () => {
+  console.log("tracking");
   if (!trackingData) trackingData = await service.getTrackingDetail();
-var transport = nodemailer.createTransport({
-              service: "gmail",
-              auth: {
-                user: process.env.email,
-                pass: process.env.password,
-              },
-            });
-            const message = {
-              from: "pricetracking28@gmail.com",
-              to: "masiti4178@sc2hub.com",
-              subject: "Data!!!",
-              html: `${trackingData}`,
-            };
-            transport.sendMail(message, (error, info) => {
-              if (error) {
-                console.log(error);
-              }
-            });
   if (trackingData) {
     for (let i of trackingData) {
       for (const j of i.trackingItem) {
         const $ = await fetchHTML(j.url);
+        if($)
+        {
         let price;
         if (j.url.includes("amazon")) {
           price = $("#priceblock_ourprice").html();
@@ -114,6 +103,7 @@ var transport = nodemailer.createTransport({
           }
         }
       }
+      }
     }
   }
 };
@@ -129,7 +119,7 @@ routes.post("/getprice", async (req, res, next) => {
 routes.post("/addtracker", auth, async (req, res, next) => {
   req.body.userid = req.user.userid;
   try {
-    const rest = await axios.post('https://pricetrackeruser.herokuapp.com/getemail',{
+    const rest = await axios.post("https://pricetrackeruser.herokuapp.com/getemail", {
       userid: req.body.userid,
     });
     req.body.email = rest.data.username;

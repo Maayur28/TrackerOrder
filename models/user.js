@@ -9,13 +9,21 @@ userModel.getTrackingDetail = async () => {
   return await model.find();
 };
 async function fetchHTML(url) {
-  const { data } = await axios.get(url, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36",
-    },
-  });
-  return cheerio.load(data);
+  try {
+    const { data } = await axios.get(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36",
+      },
+    });
+    return cheerio.load(data);
+  } catch (error) {
+    let err = new Error();
+    err.status = 500;
+    err.message =
+      "Sorry! Server is busy,Please try again later";
+    throw err;
+  }
 }
 
 userModel.getPrice = async (url) => {
@@ -23,15 +31,15 @@ userModel.getPrice = async (url) => {
   let obj = {};
   if (url.includes("amazon")) {
     let price = $("#priceblock_ourprice").html();
-    if (price == null) 
-    price = $("#priceblock_dealprice").html();
-    if(price==null)
-    price=$("#priceblock_saleprice").html();
-    let name=$('#productTitle').html().trim();
-    let imge=$('.a-stretch-vertical').attr('src');
+    if (price == null) price = $("#priceblock_dealprice").html();
+    if (price == null) price = $("#priceblock_saleprice").html();
+    let name = $("#productTitle").html().trim();
+    let imge = $(".a-stretch-vertical").attr("src");
+    if (imge == undefined) imge = $(".a-stretch-horizontal").attr("src");
     obj.name = name;
     obj.price = price;
     obj.image = imge;
+    console.log(price, imge, name);
   } else {
     let price = $("._30jeq3").html();
     let fname = $(".G6XhRU").html();
@@ -52,8 +60,6 @@ userModel.getPrice = async (url) => {
     obj.image = imge;
   }
   return obj;
-  // price=price.html().replace(/,/g,'').slice(redu.indexOf(';')+1,);
-  // price=price.replace(/,/g,'').slice(1,);
 };
 
 userModel.addtoTracking = async (prod) => {
