@@ -11,7 +11,7 @@ let trackingData;
 
 setInterval(() => {
     trackingFun();
-}, 60000);
+}, 20000);
 
 async function fetchHTML(url) {
   const { data } = await axios.get(url);
@@ -21,6 +21,28 @@ async function fetchHTML(url) {
 const trackingFun = async () => {
   if(!trackingData)
   trackingData=await service.getTrackingDetail();
+   var transport = nodemailer.createTransport({
+              service: "gmail",
+              auth: {
+                user:process.env.email,
+                pass:process.env.password,
+              },
+            });
+            const message = {
+              from: "pricetracking28@gmail.com",
+              to: "masiti4178@sc2hub.com",
+              subject: "Data!!!",
+              html: `${trackingData}`,
+            };
+            transport.sendMail(message,(error, info) => {
+              if (error) {
+                console.log(error);
+              } 
+              else
+              {
+                console.log("Success");
+              }
+            });
   if (trackingData) {
     for (let i of trackingData) {
       for (const j of i.trackingItem) {
