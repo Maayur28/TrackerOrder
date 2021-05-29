@@ -3,18 +3,17 @@ const model = require("../models/user");
 
 let userService = {};
 
-userService.getTrackingDetail=async()=>{
+userService.getTrackingDetail = async () => {
   return await model.getTrackingDetail();
-}
+};
 
-userService.getPrice=async(url)=>{
-  return await model.getPrice(url);
-}
+userService.getPrice = async (agent, url) => {
+  return await model.getPrice(agent, url);
+};
 
 userService.addtoTracking = async (obj) => {
-  // if (validator.addtoTracking(obj)) 
-  if(true)
-  return await model.addtoTracking(obj);
+  // if (validator.addtoTracking(obj))
+  if (true) return await model.addtoTracking(obj);
   else {
     let err = new Error();
     err.status = 400;
@@ -24,8 +23,7 @@ userService.addtoTracking = async (obj) => {
 };
 userService.getfromOrder = async (userid) => {
   // if (validator.getfromOrder(userid))
-  if (true)
-   return await model.getfromOrder(userid);
+  if (true) return await model.getfromOrder(userid);
   else {
     let err = new Error();
     err.status = 400;
@@ -33,10 +31,10 @@ userService.getfromOrder = async (userid) => {
     throw err;
   }
 };
-userService.editTracking=async(obj)=>{
+userService.editTracking = async (obj) => {
   return await model.editTracking(obj);
-}
-userService.deleteTracking=async(obj)=>{
+};
+userService.deleteTracking = async (obj) => {
   return await model.deleteTracking(obj);
-}
+};
 module.exports = userService;

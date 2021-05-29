@@ -8,12 +8,12 @@ userModel.getTrackingDetail = async () => {
   let model = await dbModel.getOrderConnection();
   return await model.find();
 };
-async function fetchHTML(url) {
+async function fetchHTML(agent, url) {
   try {
+    const val = Math.floor(Math.random() * agent.length);
     const { data } = await axios.get(url, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36",
+        "User-Agent": `"${agent[val]}"`,
       },
     });
     return cheerio.load(data);
@@ -25,8 +25,8 @@ async function fetchHTML(url) {
   }
 }
 
-userModel.getPrice = async (url) => {
-  const $ = await fetchHTML(url);
+userModel.getPrice = async (agent, url) => {
+  const $ = await fetchHTML(agent, url);
   let obj = {};
   if (url.includes("amazon")) {
     let price = $("#priceblock_ourprice").html();
