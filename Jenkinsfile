@@ -8,10 +8,7 @@ node {
         app=docker.build("mayur28121996/trackerorderapp")
     }
     stage('Test image'){
-        app.inside
-        {
-            echo "tests passed"
-        }
+        echo "tests passed"
     }
     stage('Push image') {
         docker.withRegistry('https://registry.hub.docker.com', 'dockerCred') {
