@@ -5,7 +5,7 @@ node {
         checkout scm
     }
     stage('Build image'){
-        app=docker.build("mayur28121996/trackerorder")
+        app=docker.build()
     }
     stage('Test image'){
         echo "tests passed"
