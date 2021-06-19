@@ -12,13 +12,8 @@ node {
     }
     stage('Push image') {
         docker.withRegistry('https://registry.hub.docker.com', 'dockerCred') {
-            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
             } 
                 echo "Trying to Push Docker Build to DockerHub"
-    }
-     stage('Remove Unused docker image') {
-      steps{
-        sh "docker rmi mayur28121996/trackerorderapp:$BUILD_NUMBER"
-      }
     }
 }
