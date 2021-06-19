@@ -14,8 +14,8 @@ app.use(requestLogger);
 app.use("/", routing);
 app.use(errorLogger);
 
-app.listen(process.env.PORT, (err) => {
-  if (!err) console.log(`Tracking Server is started at port ${process.env.PORT}`);
+app.listen(process.env.PORT||2222, (err) => {
+  if (!err) console.log(`Tracking Server is started at port ${process.env.PORT || '2222'}`);
   else console.log("Error in order server setup");
 });
 
