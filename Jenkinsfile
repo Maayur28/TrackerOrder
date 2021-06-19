@@ -5,7 +5,7 @@ node {
         checkout scm
     }
     stage('Build image'){
-        app=docker.build("trackerOrder")
+        app=docker.build("trackerorder")
     }
     stage('Test image'){
         echo "tests passed"
@@ -18,7 +18,7 @@ node {
     }
      stage('Remove Unused docker image') {
       steps{
-        sh "docker rmi trackerOrder:$BUILD_NUMBER"
+        sh "docker rmi trackerorder:$BUILD_NUMBER"
       }
     }
 }
