@@ -16,9 +16,4 @@ node {
             } 
                 echo "Trying to Push Docker Build to DockerHub"
     }
-    stage('Cleaning up') { 
-            steps { 
-                sh "docker rmi "mayur28121996/trackerorderapp":$BUILD_NUMBER" 
-            }
-        }
 }
