@@ -12,8 +12,7 @@ node {
     }
     stage('Push image') {
         docker.withRegistry('https://registry.hub.docker.com', 'dockerCred') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
+            app.push()
             } 
                 echo "Trying to Push Docker Build to DockerHub"
     }
