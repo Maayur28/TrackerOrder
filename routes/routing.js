@@ -200,7 +200,7 @@ setInterval(() => {
   userAgentIndex++;
   if (userAgentIndex >= agent.length) userAgentIndex = 0;
   trackingFun();
-},600000);
+},60000);
 
 async function fetchHTML(url) {
   try {
