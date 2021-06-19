@@ -5,7 +5,7 @@ node {
         checkout scm
     }
     stage('Build image'){
-       dockerImage = docker.build registry + ":$BUILD_NUMBER"
+       dockerImage = "mayur28121996/trackerorderapp" + ":$BUILD_NUMBER"
     }
     stage('Test image'){
         echo "tests passed"
@@ -18,7 +18,7 @@ node {
     }
     stage('Cleaning up') { 
             steps { 
-                sh "docker rmi $registry:$BUILD_NUMBER" 
+                sh "docker rmi "mayur28121996/trackerorderapp":$BUILD_NUMBER" 
             }
         }
 }
