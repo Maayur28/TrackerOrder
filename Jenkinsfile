@@ -5,15 +5,20 @@ node {
         checkout scm
     }
     stage('Build image'){
-        app=docker.build("mayur28121996/trackerorderapp")
+       dockerImage = docker.build registry + ":$BUILD_NUMBER"
     }
     stage('Test image'){
         echo "tests passed"
     }
     stage('Push image') {
         docker.withRegistry('https://registry.hub.docker.com', 'dockerCred') {
-            app.push()
+            dockerImage.push()
             } 
                 echo "Trying to Push Docker Build to DockerHub"
     }
+    stage('Cleaning up') { 
+            steps { 
+                sh "docker rmi $registry:$BUILD_NUMBER" 
+            }
+        }
 }
