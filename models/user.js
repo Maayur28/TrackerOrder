@@ -5,8 +5,15 @@ const cheerio = require("cheerio");
 let userModel = {};
 
 userModel.getTrackingDetail = async () => {
-  let model = await dbModel.getOrderConnection();
-  return await model.find();
+  try {
+    let model = await dbModel.getOrderConnection();
+    return await model.find();
+  } catch (error) {
+    let err = new Error();
+    err.status = 500;
+    err.message = "Could not establish connection with order database";
+    throw err;
+  }
 };
 async function fetchHTML(agent, url) {
   try {

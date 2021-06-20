@@ -217,7 +217,11 @@ async function fetchHTML(url) {
 
 const trackingFun = async () => {
   console.log("tracking");
-  if (!trackingData) trackingData = await service.getTrackingDetail();
+  try {
+    if (!trackingData) trackingData = await service.getTrackingDetail();
+  } catch (error) {
+    console.log(error.message)
+  }
   if (trackingData) {
     for (let i of trackingData) {
       for (const j of i.trackingItem) {
